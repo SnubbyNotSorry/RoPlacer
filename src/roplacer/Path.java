@@ -1,5 +1,11 @@
 package roplacer;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Snubby
@@ -20,11 +26,12 @@ public class Path {
      * it is that if the path finishes different than how it started, then it
      * has been found. Will be useful later on for when Roblox updates.
      */
-    public boolean pathFinder() {
+    public void pathFinder() {
         String oldPath = path;
         ProcessHandle.allProcesses()
             .forEach(process -> checkProcess(process.info()));
-        return (oldPath != path);
+        writePath();
+        //return (oldPath != path);
     }
     
     /**
@@ -32,10 +39,22 @@ public class Path {
      * 
      * @param process fed by pathFinder() above
      */
-    public void checkProcess(ProcessHandle.Info process) {
+    private void checkProcess(ProcessHandle.Info process) {
         if (process.command().toString().endsWith("RobloxPlayerBeta.exe]")) {
-            //Roblox has been found, set path.
+            //Roblox has been found, set path
             path = process.command().toString();
+            writePath();
+        }
+    }
+    
+    private void writePath() {
+        PrintWriter writer;
+        try {
+            writer = new PrintWriter("path.txt", "UTF-8");
+            writer.println(path);
+            writer.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+            Logger.getLogger(Path.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
